@@ -195,10 +195,15 @@ export function replay(
 export function renderChain(r: ReplayedTransaction): string {
   const lines: string[] = [`Transaction: ${r.transactionId}`];
 
+  // Two counts, kept apart on purpose. Integrity is a property of the WHOLE log; the second
+  // number is how much of it belongs to this transaction. Printing only the first next to a page
+  // showing six events invites the reader to think the verifier lost track of something.
   lines.push(
     r.chain.valid
-      ? `Evidence chain: intact, ${r.chain.length} events.`
-      : `Evidence chain: BROKEN at event ${r.chain.brokenAt}. ${r.chain.reason}`,
+      ? `Evidence chain: whole log intact (${r.chain.length} events); ` +
+        `this transaction: ${r.events.length}.`
+      : `Evidence chain: WHOLE LOG BROKEN at event ${r.chain.brokenAt} -- ${r.chain.reason} ` +
+        `(this transaction: ${r.events.length} events)`,
   );
 
   lines.push(`User instruction: ${r.prompt ?? '(not recorded)'}`);

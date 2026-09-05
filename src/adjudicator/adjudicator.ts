@@ -136,8 +136,23 @@ export async function adjudicate(input: DisputeInput, judge: ConformanceJudge): 
     };
   }
 
+  // The goal falls back to the user's recorded instruction when no `recourse.semantic_intent`
+  // constraint was authorised.
+  //
+  // This is the gap the project is about, in one line. A user who set only a spending limit has
+  // still told the agent what they wanted, and that instruction is in the ledger. The Gate could
+  // not act on it -- there was no constraint to evaluate -- but a dispute is precisely the moment
+  // to ask whether the thing delivered matched what was asked for. Refusing to look at the
+  // instruction here would mean an unconstrained mandate can never be disputed on substance,
+  // which is the opposite of the point.
+  const goal =
+    replayed.goal ??
+    (replayed.prompt !== undefined
+      ? `${replayed.prompt}  (taken from the user's recorded instruction; no semantic constraint was authorised)`
+      : '(no goal was recorded)');
+
   const outcome = await judge.adjudicate({
-    goal: replayed.goal ?? '(no semantic intent constraint was authorised)',
+    goal,
     complaint: input.complaint,
     chain: renderChain(replayed),
   });
@@ -221,7 +236,10 @@ export function evidencePack(ruling: Ruling): string {
   lines.push('EVIDENCE');
   lines.push(renderChain(r).split('\n').map((l) => `  ${l}`).join('\n'));
   lines.push('');
-  lines.push(`  ${r.events.length} events, chain ${r.chain.valid ? 'intact' : 'BROKEN'}.`);
+  lines.push(
+    `  ${r.events.length} event(s) in this transaction; whole-log chain ` +
+      `${r.chain.valid ? `intact across ${r.chain.length} events` : 'BROKEN'}.`,
+  );
   if (r.chain.valid) lines.push(`  Head hash: ${r.chain.head}`);
 
   return lines.join('\n');

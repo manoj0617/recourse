@@ -94,8 +94,29 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRun> {
 
     // A verdict ends the run, whatever it was. See the note at the top of this file.
     if (session.verdict) {
-      const closing = await transport.chat({ model, messages, temperature });
-      messages.push(closing);
+      // The closing turn is cosmetic: the verdict is already decided and recorded. It is
+      // therefore best-effort, for two reasons found the hard way against a live provider.
+      //
+      // `tools` is still passed. Omitting it makes some providers infer `tool_choice: none`, and
+      // a model that tries to call a tool anyway gets a 400 rather than a reply. Any tool calls
+      // in this turn are ignored rather than executed -- the run is over.
+      //
+      // And the whole thing is wrapped, because losing a pleasantry must never lose a completed
+      // purchase. A provider hiccup here previously discarded a finished verdict.
+      try {
+        const closing = await transport.chat({
+          model,
+          messages,
+          temperature,
+          tools: TOOL_DEFINITIONS,
+        });
+        messages.push(closing);
+      } catch {
+        messages.push({
+          role: 'assistant',
+          content: '(the model did not return a closing message; the verdict above stands)',
+        });
+      }
       turns += 1;
       break;
     }

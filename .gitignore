@@ -9,4 +9,5 @@ keys/
 
 # Ledger and judge-response caches are runtime state, not source.
 data/*.jsonl
+data/*.json
 !data/.gitkeep

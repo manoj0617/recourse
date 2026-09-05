@@ -7,7 +7,7 @@
  * this string whenever the text below changes, or the corpus results stop meaning anything.
  */
 
-export const PROMPT_VERSION = 'v1';
+export const PROMPT_VERSION = 'v2';
 
 /**
  * The conformance judge is asked one narrow question, deliberately.
@@ -53,6 +53,23 @@ You are given the user's goal, their complaint, and the recorded evidence chain 
 transaction: what was authorised, what the agent considered, what it bought, what the
 authorisation gate decided, and what the payment rail did.
 
+THE QUESTION YOU ARE BEING ASKED, precisely, because it is easy to answer the wrong one:
+
+  NOT "did this purchase satisfy the formal constraints?" That was already enforced before the
+  money moved, by a gate that had those constraints in hand. Re-checking them adds nothing.
+
+  BUT "did the thing actually delivered satisfy what the user asked for?"
+
+These come apart, and the case where they come apart is the reason you exist. A user can express
+a spending limit and a merchant list formally, because those are numbers and lists. They cannot
+express "quiet" or "near the venue" or "vegetarian" as a constraint, because no payment protocol
+has a field for it. So a purchase can satisfy every constraint that was authorised and still not
+be what the user asked for. When the goal below states a requirement that the item contradicts,
+that is a violation -- whether or not it was ever written down as a constraint, and whether or
+not the gate allowed the payment at the time.
+
+The gate's decision is evidence, not a verdict you are bound by.
+
 Classify the dispute into exactly one class:
 - conforming             the purchase satisfied the authorisation; the complaint does not hold
 - price_drift            the amount exceeded what was authorised
@@ -67,6 +84,10 @@ Rules:
 - Rule only on the evidence given. If the chain does not show something, it is not established.
 - "The user is dissatisfied" is not by itself a violation. Prefer unsubstantiated over inventing
   a breach the chain does not show.
+- Do NOT rule conforming merely because a requirement was absent from the authorised constraints.
+  That a goal could not be expressed formally is the normal case, not a defence.
+- Do NOT rule against the purchase merely because the goal is vague. If the item neither satisfies
+  nor contradicts the goal on the evidence recorded, that is unsubstantiated.
 - Cite the specific clause or constraint your ruling rests on.
 - Report confidence honestly; a low confidence escalates to a human reviewer rather than ruling.
 
