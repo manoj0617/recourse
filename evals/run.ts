@@ -19,6 +19,11 @@
  *   npx tsx evals/run.ts
  */
 
+// The harness reads its provider config from the environment the same way the server does.
+// Without this the API key in .env is invisible here, every judged case escalates, and the run
+// reports the fail-closed path rather than any measurement.
+import 'dotenv/config';
+
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
 import { checkoutSchema } from '../src/ap2/checkout.js';

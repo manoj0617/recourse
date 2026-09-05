@@ -128,10 +128,17 @@ as `label_source: "assistant-proposed"`, with the `rationale` each was labelled 
 can be audited in two lines or changed in one. Model-written ground truth used to score a model is
 a fair thing to be suspicious of, so it is in the data rather than in a footnote.
 
-Second, **producing a real figure for them needs an API key.** Without one the judge escalates,
-every judged case resolves to `unsubstantiated`, and the harness prints a banner saying the
-semantic constraint was not evaluated — because a bare `0/10` on that page would be read as a judge
-that got everything wrong, when it is the fail-closed path refusing to guess:
+Second, the result on them is **10 of 10 matched**, and that number deserves less weight than it
+looks like it deserves. Ten cases is a small sample: a perfect score here is consistent with a wide
+range of true performance, and it is not evidence of a ceiling. The ground truth was proposed by a
+language model and the judge is from the same family, so the two can agree by sharing a blind spot
+rather than by being right. Read it as *the semantic constraint is wired correctly and behaves
+sensibly on ten cases*, not as an accuracy claim.
+
+Running it needs an API key. Without one the judge escalates, every judged case resolves to
+`unsubstantiated`, and the harness prints a banner saying the semantic constraint was not
+evaluated -- because a bare `0/10` on that page would be read as a judge that got everything wrong,
+when it is the fail-closed path refusing to guess:
 
 ```bash
 JUDGE_API_KEY=... JUDGE_MODE=record npx tsx evals/run.ts   # pay once
