@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+*.local
+
+# Ed25519 signing keys. Generated locally, never committed. See README.
+keys/
+!keys/.gitkeep
+
+# Ledger and judge-response caches are runtime state, not source.
+data/*.jsonl
+!data/.gitkeep
