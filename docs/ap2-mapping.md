@@ -74,9 +74,9 @@ including which fields are selectively disclosable. The evaluation algorithm."* 
 below supplies all three. They are registered in the same registry as the built-ins, and the Gate
 cannot tell them apart.
 
-| Constraint | Why AP2 has no vocabulary for it | Verifier-equivalent? |
+| Constraint | Why AP2 defines no constraint type for it | Verifier-equivalent? |
 |---|---|---|
-| `recourse.semantic_intent` | "a quiet hotel near the venue" is a judgement about whether a thing satisfies a goal, not a predicate over enumerable values | **No** — see below |
+| `recourse.semantic_intent` | AP2 can carry a goal as a natural-language description, but "a quiet hotel near the venue" is a judgement about whether a thing satisfies that goal, not a predicate over enumerable values, and no built-in evaluates one | **No** — see below |
 | `recourse.category_scope` | AP2 constrains SKUs, not categories. "Books and stationery, nothing else" is not expressible as a SKU list over a catalogue the user has not seen | Yes |
 | `recourse.cart_replay` | budget accumulation catches repeated spend once the total breaches `max`; it cannot catch the same 500 cart charged four times inside an 8,000 budget | Yes |
 
@@ -114,9 +114,16 @@ with their disclosures so that `sd_hash`, `checkout_hash` and Receipt `reference
 recomputed — which establishes what was authorised and what each party saw.
 
 **The gap this project addresses is narrower than "AP2 does not do disputes", and stating it
-loosely is a mistake.** AP2 establishes *what was authorised and seen*. Nothing on the rails rules
-on whether the delivered thing *satisfied a goal expressed in natural language*. That ruling is
+loosely is a mistake.** AP2 establishes *what was authorised and seen*, and says plainly that the
+specifics of dispute resolution are out of its scope. What is not specified anywhere in it is the
+step after the evidence: replaying that record to rule on whether the delivered thing *satisfied a
+goal expressed in natural language*, and deriving a remedy from the ruling. That step is
 [`src/adjudicator/`](../src/adjudicator/).
+
+The same is true one layer down. Card networks and PSPs building for agent payments do cover
+authorisation, bounded execution, audit trails and dispute evidence -- see the related-work note in
+the README. This project does not claim that ground. It prototypes the adjudication step on top of
+it.
 
 ## What is not implemented
 

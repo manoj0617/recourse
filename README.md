@@ -8,13 +8,13 @@ on it.
 It **consumes** [Google's Agent Payments Protocol (AP2)](https://ap2-protocol.org/); it does not
 reinvent it. AP2 v0.2 defines the mandates, the SD-JWT envelope, and five constraint types, and
 this project implements their evaluation. It also defines an extension point for new constraints,
-and this project uses it to add the three AP2 has no vocabulary for.
+and this project uses it to add three that AP2 defines no constraint type for.
 
 The one-line problem:
 
 > A signed mandate proves the user said "book me a quiet hotel under 8,000 near the venue."
-> Nothing on the rails decides whether the 7,800 room six kilometres away above a nightclub
-> satisfied it.
+> Every authorised constraint can pass, and the 7,800 room six kilometres away above a nightclub
+> can still not be the thing that was asked for.
 
 That judgement is the product. It is an AI problem, not a cryptography one.
 
@@ -30,8 +30,10 @@ matching rather than a per-item membership test.
 **Defined here, through AP2's documented extension point** — which requires *"A uniquely defined
 `type`. A Schema, including which fields are selectively disclosable. The evaluation algorithm."*
 
-- `recourse.semantic_intent` — the natural-language goal. AP2 can express "under 8,000", "from
-  these merchants" and "one of these SKUs". It cannot express "quiet".
+- `recourse.semantic_intent` — the natural-language goal. AP2 can carry a goal as a description,
+  and its constraints express "under 8,000", "from these merchants", "one of these SKUs". What it
+  does not define is a constraint type that evaluates "quiet". Recording a goal and enforcing one
+  are different things.
 - `recourse.category_scope` — AP2 constrains SKUs, not categories.
 - `recourse.cart_replay` — budget accumulation catches repeated spend once the total breaches the
   ceiling. It cannot catch the same 500 cart charged four times inside an 8,000 budget.
@@ -49,6 +51,32 @@ pre-authorisation A2A and MCP interactions *"remain outside that protection"* an
 mandate signatures alone do not ensure that an agent-mediated transaction reflects the user's
 intent when its pre-authorisation context is manipulated."* That is the argument for a
 pre-transaction gate, made by someone else.
+
+### Related work, and what this project does not claim
+
+Agent payment infrastructure is not short of authorisation machinery, and it would be wrong to
+imply otherwise. Public materials from Mastercard (Agent Pay / Verifiable Intent), Visa
+(Intelligent Commerce), Stripe (agentic commerce, transaction-scoped shared payment tokens) and
+Razorpay (Agentic Payments, UPI Reserve Pay) all describe some combination of spending limits,
+merchant and time restrictions, approval workflows, authenticated user intent, and audit trails
+kept for dispute resolution. Mastercard's Verifiable Intent material speaks directly about recourse
+when an agent does something the user did not ask for.
+
+So none of the following is claimed as new here: intent provenance, spend control, bounded
+delegated authority, tamper-evident audit trails, or the idea that agent payments need recourse.
+
+What this project prototypes is the step after the evidence, and only that:
+
+> a transaction that passed every formal authorisation check is later challenged against the
+> natural-language goal behind it; the recorded chain is replayed; a ruling is produced with a
+> classification and a confidence; and a remedy is derived from the ruling and the rail's own caps.
+
+AP2 states that the specifics of dispute resolution are outside its scope. In the card-network and
+PSP material surveyed, this adjudication step is not publicly described as a mechanism. That is a
+statement about what is publicly documented, not a claim that nobody has built it internally.
+
+The honest one-line version: **authorisation decides whether the agent was allowed to act; this
+decides what happens when an allowed action was still wrong.**
 
 ## Architecture
 
